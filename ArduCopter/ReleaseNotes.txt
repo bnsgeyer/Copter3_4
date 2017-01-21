@@ -1,4 +1,9 @@
 APM:Copter Release Notes:
+__________________________________________________________________
+Copter 3.4.4 Geyer V1.0 21-Jan-2017
+Changes from Copter 3.4.4
+1) added attitude leak
+2) added Notch filter to PID algorithm
 ------------------------------------------------------------------
 Copter 3.4.4 06-Jan-2017 / Copter 3.4.4-rc1 21-Dec-2016
 Changes from 3.4.3
