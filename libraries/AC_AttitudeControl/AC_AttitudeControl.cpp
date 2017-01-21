@@ -92,6 +92,13 @@ const AP_Param::GroupInfo AC_AttitudeControl::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("ANG_LIM_TC", 16, AC_AttitudeControl, _angle_limit_tc, AC_ATTITUDE_CONTROL_ANGLE_LIMIT_TC_DEFAULT),
 
+    // @Param: ANG_LEAK_RAT
+    // @DisplayName: Angle Leak Rate
+    // @Description: Rate at which target attitude will leak back to aircraft current attitude
+    // @Range: 0 1.0
+    // @User: Advanced
+    AP_GROUPINFO("ANG_LEAK_RAT", 17, AC_AttitudeControl, _angle_leak_rate, 0.0f),
+
     AP_GROUPEND
 };
 
@@ -383,6 +390,16 @@ void AC_AttitudeControl::attitude_controller_run_quat()
     // TODO add _ahrs.get_quaternion()
     Quaternion attitude_vehicle_quat;
     attitude_vehicle_quat.from_rotation_matrix(_ahrs.get_rotation_body_to_ned());
+
+    // calculate the attitude target euler angles to leak attitude
+    _attitude_target_quat.to_euler(_attitude_target_euler_angle.x, _attitude_target_euler_angle.y, _attitude_target_euler_angle.z);
+
+    // Leak attitude to current attitude
+   _attitude_target_euler_angle.x = (1.0f-constrain_float(_angle_leak_rate,0.0f,1.0f)) * wrap_PI(_attitude_target_euler_angle.x - radians (_ahrs.roll_sensor * 0.01f)) + radians (_ahrs.roll_sensor * 0.01f); 
+   _attitude_target_euler_angle.y = (1.0f-constrain_float(_angle_leak_rate,0.0f,1.0f)) * wrap_PI(_attitude_target_euler_angle.y - radians (_ahrs.pitch_sensor * 0.01f)) + radians (_ahrs.pitch_sensor * 0.01f); 
+
+    // Compute quaternion target attitude after leaking attitude
+    _attitude_target_quat.from_euler(_attitude_target_euler_angle.x, _attitude_target_euler_angle.y, _attitude_target_euler_angle.z);
 
     // Compute attitude error
     Vector3f attitude_error_vector;

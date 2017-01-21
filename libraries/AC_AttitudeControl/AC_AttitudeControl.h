@@ -300,6 +300,9 @@ protected:
     // Angle limit time constant (to maintain altitude)
     AP_Float            _angle_limit_tc;
 
+    // Rate at which target attitude will leak back to aircraft current attitude
+    AP_Float            _angle_leak_rate;
+
     // Intersampling period in seconds
     float               _dt;
 
