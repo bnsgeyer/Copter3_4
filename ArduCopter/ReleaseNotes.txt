@@ -1,5 +1,9 @@
 APM:Copter Release Notes:
 __________________________________________________________________
+Copter 3.4.4 Geyer V1.1 21-Jan-2017
+Changes from Copter 3.4.4
+1) added parameter to allow user to adjust I term leak rate
+__________________________________________________________________
 Copter 3.4.4 Geyer V1.0 21-Jan-2017
 Changes from Copter 3.4.4
 1) added attitude leak
