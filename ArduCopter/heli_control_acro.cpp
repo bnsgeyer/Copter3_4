@@ -35,15 +35,30 @@ void Copter::heli_acro_run()
     
     if(!motors.armed()) {
         heli_flags.init_targets_on_arming=true;
+    // Don't allow attitude error to build up while disarmed for flight control checks 
+        attitude_control.set_pitch_target_to_current_attitude();
+        attitude_control.set_roll_target_to_current_attitude();
         attitude_control.set_yaw_target_to_current_heading();
+    // Don't allow Integrator to store error while disarmed for flight control checks
+        attitude_control.reset_rate_controller_I_terms();
     }
     
     if(motors.armed() && heli_flags.init_targets_on_arming) {
+        attitude_control.set_pitch_target_to_current_attitude();
+        attitude_control.set_roll_target_to_current_attitude();
         attitude_control.set_yaw_target_to_current_heading();
+        attitude_control.reset_rate_controller_I_terms();
         if (motors.rotor_speed_above_critical()) {
             heli_flags.init_targets_on_arming=false;
         }
     }   
+
+    //leak integrator error while on the ground
+    attitude_control.use_leaky_i(ap.land_complete);
+
+    //leak attitude in attitude controller
+    attitude_control.leak_roll_target_to_current_attitude();
+    attitude_control.leak_pitch_target_to_current_attitude();
 
     // clear landing flag above zero throttle
     if (motors.armed() && motors.get_interlock() && motors.rotor_runup_complete() && !ap.throttle_zero) {
