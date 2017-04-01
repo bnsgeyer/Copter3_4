@@ -106,6 +106,24 @@ public:
     // reset rate controller I terms
     void reset_rate_controller_I_terms();
 
+    // Sets pitch target to vehicle pitch attitude
+    void set_pitch_target_to_current_attitude() { shift_ef_pitch_target(degrees(_ahrs.pitch - _attitude_target_euler_angle.y)*100.0f); }
+
+    // leaks pitch target to vehicle pitch attitude
+    void leak_pitch_target_to_current_attitude() { shift_ef_pitch_target(degrees((_ahrs.pitch - _attitude_target_euler_angle.y)*_angle_leak_rate)*100.0f); }
+
+    // Shifts earth frame pitch target by pitch_shift_cd. Pitch_roll_cd should be in centidegrees and is added to the current target attitude
+    void shift_ef_pitch_target(float pitch_shift_cd);
+
+    // Sets roll target to vehicle roll attitude
+    void set_roll_target_to_current_attitude() { shift_ef_roll_target(degrees(_ahrs.roll - _attitude_target_euler_angle.x)*100.0f); }
+
+    // leaks roll target to vehicle roll attitude
+    void leak_roll_target_to_current_attitude() { shift_ef_roll_target(degrees((_ahrs.roll - _attitude_target_euler_angle.x)*_angle_leak_rate)*100.0f); }
+
+    // Shifts earth frame roll target by roll_shift_cd. roll_shift_cd should be in centidegrees and is added to the current target attitude
+    void shift_ef_roll_target(float roll_shift_cd);
+
     // Sets yaw target to vehicle heading
     void set_yaw_target_to_current_heading() { shift_ef_yaw_target(degrees(_ahrs.yaw - _attitude_target_euler_angle.z)*100.0f); }
 

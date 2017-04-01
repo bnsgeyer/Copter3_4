@@ -527,6 +527,24 @@ Vector3f AC_AttitudeControl::euler_accel_limit(Vector3f euler_rad, Vector3f eule
     return rot_accel;
 }
 
+// Shifts earth frame pitch target by pitch_shift_cd. pitch_shift_cd should be in centidegrees and is added to the current target pitch attitude
+void AC_AttitudeControl::shift_ef_pitch_target(float pitch_shift_cd)
+{
+    float pitch_shift = radians(pitch_shift_cd*0.01f);
+    Quaternion _attitude_target_update_quat;
+    _attitude_target_update_quat.from_axis_angle(Vector3f(0.0f, pitch_shift, 0.0f));
+    _attitude_target_quat = _attitude_target_update_quat*_attitude_target_quat;
+}
+
+// Shifts earth frame roll target by roll_shift_cd. roll_shift_cd should be in centidegrees and is added to the current target roll attitude
+void AC_AttitudeControl::shift_ef_roll_target(float roll_shift_cd)
+{
+    float roll_shift = radians(roll_shift_cd*0.01f);
+    Quaternion _attitude_target_update_quat;
+    _attitude_target_update_quat.from_axis_angle(Vector3f(roll_shift, 0.0f, 0.0f));
+    _attitude_target_quat = _attitude_target_update_quat*_attitude_target_quat;
+}
+
 // Shifts earth frame yaw target by yaw_shift_cd. yaw_shift_cd should be in centidegrees and is added to the current target heading
 void AC_AttitudeControl::shift_ef_yaw_target(float yaw_shift_cd)
 {
