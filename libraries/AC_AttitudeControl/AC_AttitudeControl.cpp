@@ -398,11 +398,7 @@ void AC_AttitudeControl::attitude_controller_run_quat()
    _attitude_target_euler_angle.x = (1.0f-constrain_float(_angle_leak_rate,0.0f,1.0f)) * wrap_PI(_attitude_target_euler_angle.x - radians (_ahrs.roll_sensor * 0.01f)) + radians (_ahrs.roll_sensor * 0.01f); 
    _attitude_target_euler_angle.y = (1.0f-constrain_float(_angle_leak_rate,0.0f,1.0f)) * wrap_PI(_attitude_target_euler_angle.y - radians (_ahrs.pitch_sensor * 0.01f)) + radians (_ahrs.pitch_sensor * 0.01f); 
 
-    // Limit heading error
-    float heading_error = wrap_PI(_attitude_target_euler_angle.z - radians (_ahrs.yaw_sensor * 0.01f));
-    _attitude_target_euler_angle.z= constrain_float(heading_error,-0.1745f,0.1745f) + radians (_ahrs.yaw_sensor * 0.01f);
-
-    // Compute quaternion target attitude after leaking attitude and limiting heading error
+    // Compute quaternion target attitude after leaking attitude
     _attitude_target_quat.from_euler(_attitude_target_euler_angle.x, _attitude_target_euler_angle.y, _attitude_target_euler_angle.z);
 
     // Compute attitude error
