@@ -26,6 +26,8 @@
 #define AC_ATTITUDE_RATE_RP_CONTROLLER_OUT_MAX          1.0f    // body-frame rate controller maximum output (for roll-pitch axis)
 #define AC_ATTITUDE_RATE_YAW_CONTROLLER_OUT_MAX         1.0f    // body-frame rate controller maximum output (for yaw axis)
 
+#define AC_ATTITUDE_RP_ERROR_ANGLE                      1000.0f          // Error above which roll and pitch corrections are limited
+#define AC_ATTITUDE_Y_ERROR_ANGLE                       1000.0f          // Error above which yaw corrections are limited
 #define AC_ATTITUDE_THRUST_ERROR_ANGLE                  radians(30.0f) // Thrust angle error above which yaw corrections are limited
 
 #define AC_ATTITUDE_400HZ_DT                            0.0025f // delta time in seconds for 400hz update rate
@@ -112,6 +114,9 @@ public:
     // leaks pitch target to vehicle pitch attitude
     void leak_pitch_target_to_current_attitude() { shift_ef_pitch_target(degrees((_ahrs.pitch - _attitude_target_euler_angle.y)*_angle_leak_rate)*100.0f); }
 
+    // limit error between pitch target and vehicle pitch attitude
+    void limit_error_between_pitch_target_and_current_attitude() { shift_ef_pitch_target(degrees(_ahrs.pitch - _attitude_target_euler_angle.y) * 100.0f - constrain_float(degrees(_ahrs.pitch - _attitude_target_euler_angle.y) * 100.0f, -AC_ATTITUDE_RP_ERROR_ANGLE, AC_ATTITUDE_RP_ERROR_ANGLE)); }
+
     // Shifts earth frame pitch target by pitch_shift_cd. Pitch_roll_cd should be in centidegrees and is added to the current target attitude
     void shift_ef_pitch_target(float pitch_shift_cd);
 
@@ -121,11 +126,20 @@ public:
     // leaks roll target to vehicle roll attitude
     void leak_roll_target_to_current_attitude() { shift_ef_roll_target(degrees((_ahrs.roll - _attitude_target_euler_angle.x)*_angle_leak_rate)*100.0f); }
 
+    // limit error between roll target and vehicle roll attitude
+    void limit_error_between_roll_target_and_current_attitude() { shift_ef_roll_target(degrees(_ahrs.roll - _attitude_target_euler_angle.x) * 100.0f - constrain_float(degrees(_ahrs.roll - _attitude_target_euler_angle.x) * 100.0f, -AC_ATTITUDE_RP_ERROR_ANGLE, AC_ATTITUDE_RP_ERROR_ANGLE)); }
+
     // Shifts earth frame roll target by roll_shift_cd. roll_shift_cd should be in centidegrees and is added to the current target attitude
     void shift_ef_roll_target(float roll_shift_cd);
 
     // Sets yaw target to vehicle heading
     void set_yaw_target_to_current_heading() { shift_ef_yaw_target(degrees(_ahrs.yaw - _attitude_target_euler_angle.z)*100.0f); }
+
+    // leaks yaw target to vehicle heading
+    void leak_yaw_target_to_current_heading() { shift_ef_yaw_target(degrees((_ahrs.yaw - _attitude_target_euler_angle.z)*_angle_leak_rate)*100.0f); }
+
+    // limit error between yaw target and vehicle heading
+    void limit_error_between_yaw_target_and_current_heading() { shift_ef_yaw_target(degrees(_ahrs.yaw - _attitude_target_euler_angle.z) * 100.0f - constrain_float(degrees(_ahrs.yaw - _attitude_target_euler_angle.z) * 100.0f, -AC_ATTITUDE_Y_ERROR_ANGLE, AC_ATTITUDE_Y_ERROR_ANGLE)); }
 
     // Shifts earth frame yaw target by yaw_shift_cd. yaw_shift_cd should be in centidegrees and is added to the current target heading
     void shift_ef_yaw_target(float yaw_shift_cd);
