@@ -26,43 +26,66 @@ void Copter::heli_acro_run()
 {
     float target_roll, target_pitch, target_yaw;
     float pilot_throttle_scaled;
+    AcroModeState acro_state;
     
     // Tradheli should not reset roll, pitch, yaw targets when motors are not runup, because
     // we may be in autorotation flight.  These should be reset only when transitioning from disarmed
     // to armed, because the pilot will have placed the helicopter down on the landing pad.  This is so
     // that the servos move in a realistic fashion while disarmed for operational checks.
     // Also, unlike multicopters we do not set throttle (i.e. collective pitch) to zero so the swash servos move
+
+    // check that collective pitch is on lower limit (should be constrained by LAND_COL_MIN)
+    bool motor_at_lower_limit = motors.limit.throttle_lower;
+
+    // check that the airframe is not accelerating (not falling or breaking after fast forward flight)
+    bool accel_stationary = (land_accel_ef_filter.get().length() <= LAND_DETECTOR_ACCEL_MAX);
+
+    // check that vertical speed is within 1m/s of zero
+    bool descent_rate_low = fabsf(inertial_nav.get_velocity_z()) < 100;
+
+
+
     
-    if(!motors.armed()) {
-        heli_flags.init_targets_on_arming=true;
-    // Don't allow attitude error to build up while disarmed for flight control checks 
-        attitude_control.set_pitch_target_to_current_attitude();
-        attitude_control.set_roll_target_to_current_attitude();
-        attitude_control.set_yaw_target_to_current_heading();
-    // Don't allow Integrator to store error while disarmed for flight control checks
-        attitude_control.reset_rate_controller_I_terms();
+    // Acro State Machine Determination
+    if (!motors.get_interlock() || !motors.rotor_runup_complete() || !motors.rotor_speed_above_critical()) {
+        acro_state = Acro_MotorStopped;
+    } else if (ap.land_complete && ap.throttle_zero) {
+        acro_state = Acro_Landed;
+    } else if (ap.land_complete && !ap.throttle_zero && (!motor_at_lower_limit || !accel_stationary || !descent_rate_low)) {
+        acro_state = Acro_Takeoff;
+    } else {
+        acro_state = Acro_Flying;
     }
-    
-    if(motors.armed() && heli_flags.init_targets_on_arming) {
+
+    // Acro State Machine
+    switch (acro_state) {
+
+    case Acro_MotorStopped:
         attitude_control.set_pitch_target_to_current_attitude();
         attitude_control.set_roll_target_to_current_attitude();
         attitude_control.set_yaw_target_to_current_heading();
+        attitude_control.use_leaky_i(false);
         attitude_control.reset_rate_controller_I_terms();
-        if (motors.rotor_speed_above_critical()) {
-            heli_flags.init_targets_on_arming=false;
-        }
-    }   
-
-    //leak integrator error while on the ground
-    attitude_control.use_leaky_i(ap.land_complete);
-
-    //leak attitude in attitude controller
-    attitude_control.leak_roll_target_to_current_attitude();
-    attitude_control.leak_pitch_target_to_current_attitude();
-
-    // clear landing flag above zero throttle
-    if (motors.armed() && motors.get_interlock() && motors.rotor_runup_complete() && !ap.throttle_zero) {
+        break;
+    case Acro_Landed:
+        attitude_control.leak_roll_target_to_current_attitude();
+        attitude_control.leak_pitch_target_to_current_attitude();
+        attitude_control.leak_yaw_target_to_current_heading();
+        attitude_control.use_leaky_i(true);
+        break;
+    case Acro_Takeoff:
+        attitude_control.leak_roll_target_to_current_attitude();
+        attitude_control.leak_pitch_target_to_current_attitude();
+        attitude_control.leak_yaw_target_to_current_heading();
+        attitude_control.use_leaky_i(true);
         set_land_complete(false);
+        break;
+    case Acro_Flying:
+        attitude_control.limit_error_between_roll_target_and_current_attitude();
+        attitude_control.limit_error_between_pitch_target_and_current_attitude();
+        attitude_control.limit_error_between_yaw_target_and_current_heading();
+        attitude_control.use_leaky_i(false);
+        break;
     }
 
     if (!motors.has_flybar()){
