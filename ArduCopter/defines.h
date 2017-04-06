@@ -248,7 +248,6 @@ enum SportModeState {
 
 // Acro states
 enum AcroModeState {
-    Acro_Unarmed,
     Acro_MotorStopped,
     Acro_Takeoff,
     Acro_Flying,
@@ -257,7 +256,6 @@ enum AcroModeState {
 
 // Stabilize states
 enum StabilizeModeState {
-    Stabilize_Unarmed,
     Stabilize_MotorStopped,
     Stabilize_Takeoff,
     Stabilize_Flying,
