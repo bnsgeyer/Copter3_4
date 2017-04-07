@@ -81,9 +81,6 @@ void Copter::heli_acro_run()
         set_land_complete(false);
         break;
     case Acro_Flying:
-        attitude_control.limit_error_between_roll_target_and_current_attitude();
-        attitude_control.limit_error_between_pitch_target_and_current_attitude();
-        attitude_control.limit_error_between_yaw_target_and_current_heading();
         attitude_control.use_leaky_i(false);
         break;
     }
