@@ -46,14 +46,21 @@ void Copter::heli_stabilize_run()
     // Stabilize State Machine Determination
     if (!motors.get_interlock() || !motors.rotor_runup_complete() || !motors.rotor_speed_above_critical()) {
         stabilize_state = Stabilize_MotorStopped;
-    } else if (ap.land_complete && ap.throttle_zero) {
-        stabilize_state = Stabilize_Landed;
     } else if (ap.land_complete && !ap.throttle_zero && (!motor_at_lower_limit || !accel_stationary || !descent_rate_low)) {
         stabilize_state = Stabilize_Takeoff;
+    } else if (ap.land_complete) {
+        stabilize_state = Stabilize_Landed;
     } else {
         stabilize_state = Stabilize_Flying;
     }
 
+    if (stabilize_state != stabilize_state_m1) {
+        if (stabilize_state == Stabilize_MotorStopped) {Log_Write_Event(DATA_STATE_MOTORSTOPPED);}
+        if (stabilize_state == Stabilize_Landed) {Log_Write_Event(DATA_STATE_LANDED);}
+        if (stabilize_state == Stabilize_Takeoff) {Log_Write_Event(DATA_STATE_TAKEOFF);}
+        if (stabilize_state == Stabilize_Flying) {Log_Write_Event(DATA_STATE_FLYING);}
+        stabilize_state_m1 = stabilize_state;
+    }
     // Stabilize State Machine
     switch (stabilize_state) {
 

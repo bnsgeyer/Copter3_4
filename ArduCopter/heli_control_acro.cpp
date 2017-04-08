@@ -49,14 +49,21 @@ void Copter::heli_acro_run()
     // Acro State Machine Determination
     if (!motors.get_interlock() || !motors.rotor_runup_complete() || !motors.rotor_speed_above_critical()) {
         acro_state = Acro_MotorStopped;
-    } else if (ap.land_complete && ap.throttle_zero) {
-        acro_state = Acro_Landed;
     } else if (ap.land_complete && !ap.throttle_zero && (!motor_at_lower_limit || !accel_stationary || !descent_rate_low)) {
         acro_state = Acro_Takeoff;
+    } else if (ap.land_complete) {
+        acro_state = Acro_Landed;
     } else {
         acro_state = Acro_Flying;
     }
 
+    if (acro_state != acro_state_m1) {
+        if (acro_state == Acro_MotorStopped) {Log_Write_Event(DATA_STATE_MOTORSTOPPED);}
+        if (acro_state == Acro_Landed) {Log_Write_Event(DATA_STATE_LANDED);}
+        if (acro_state == Acro_Takeoff) {Log_Write_Event(DATA_STATE_TAKEOFF);}
+        if (acro_state == Acro_Flying) {Log_Write_Event(DATA_STATE_FLYING);}
+        acro_state_m1 = acro_state;
+    }
     // Acro State Machine
     switch (acro_state) {
 
