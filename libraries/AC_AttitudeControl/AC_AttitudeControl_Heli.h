@@ -49,7 +49,9 @@ public:
             _flags_heli.limit_roll = false;
             _flags_heli.limit_pitch = false;
             _flags_heli.limit_yaw = false;
-            _flags_heli.leaky_i = true;
+            _flags_heli.pitch_leaky_i = true;
+            _flags_heli.roll_leaky_i = true;
+            _flags_heli.yaw_leaky_i = true;
             _flags_heli.flybar_passthrough = false;
             _flags_heli.tail_passthrough = false;
             _flags_heli.do_piro_comp = false;
@@ -82,7 +84,11 @@ public:
     void update_althold_lean_angle_max(float throttle_in) override;
 
 	// use_leaky_i - controls whether we use leaky i term for body-frame to motor output stage
-	void use_leaky_i(bool leaky_i) {  _flags_heli.leaky_i = leaky_i; }
+	void use_leaky_i(bool leaky_i) {  
+            _flags_heli.pitch_leaky_i = leaky_i;
+            _flags_heli.roll_leaky_i = leaky_i;
+            _flags_heli.yaw_leaky_i = leaky_i;
+        }
     
     // use_flybar_passthrough - controls whether we pass-through
     // control inputs to swash-plate and tail
@@ -110,7 +116,9 @@ private:
         uint8_t limit_roll          :   1;  // 1 if we have requested larger roll angle than swash can physically move
         uint8_t limit_pitch         :   1;  // 1 if we have requested larger pitch angle than swash can physically move
         uint8_t limit_yaw           :   1;  // 1 if we have requested larger yaw angle than tail servo can physically move
-        uint8_t leaky_i             :   1;  // 1 if we should use leaky i term for body-frame rate to motor stage
+        uint8_t pitch_leaky_i       :   1;  // 1 if we should use leaky i term for body-frame rate to motor stage
+        uint8_t roll_leaky_i        :   1;  // 1 if we should use leaky i term for body-frame rate to motor stage
+        uint8_t yaw_leaky_i         :   1;  // 1 if we should use leaky i term for body-frame rate to motor stage
         uint8_t flybar_passthrough  :   1;  // 1 if we should pass through pilots roll & pitch input directly to swash-plate
         uint8_t tail_passthrough    :   1;  // 1 if we should pass through pilots yaw input to tail
         uint8_t do_piro_comp        :   1;  // 1 if we should do pirouette compensation on roll/pitch

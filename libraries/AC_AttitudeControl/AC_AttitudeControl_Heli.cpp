@@ -292,8 +292,9 @@ void AC_AttitudeControl_Heli::rate_bf_to_motor_roll_pitch(float rate_roll_target
 
     // update i term as long as we haven't breached the limits or the I term will certainly reduce
     if (!_flags_heli.limit_roll || ((roll_i>0&&rate_roll_error_rads<0)||(roll_i<0&&rate_roll_error_rads>0))){
-		if (_flags_heli.leaky_i){
+		if (_flags_heli.roll_leaky_i){
 			roll_i = _pid_rate_roll.get_leaky_i(_rate_integrator_leak_rate);
+                        _flags_heli.roll_leaky_i = false;
 		}else{
 			roll_i = _pid_rate_roll.get_i();
 		}
@@ -304,8 +305,9 @@ void AC_AttitudeControl_Heli::rate_bf_to_motor_roll_pitch(float rate_roll_target
 
     // update i term as long as we haven't breached the limits or the I term will certainly reduce
     if (!_flags_heli.limit_pitch || ((pitch_i>0&&rate_pitch_error_rads<0)||(pitch_i<0&&rate_pitch_error_rads>0))){
-		if (_flags_heli.leaky_i) {
+		if (_flags_heli.pitch_leaky_i) {
 			pitch_i = _pid_rate_pitch.get_leaky_i(_rate_integrator_leak_rate);
+                        _flags_heli.pitch_leaky_i = false;
 		}else{
 			pitch_i = _pid_rate_pitch.get_i();
 		}
@@ -389,10 +391,11 @@ float AC_AttitudeControl_Heli::rate_target_to_motor_yaw(float rate_target_rads)
 
     // update i term as long as we haven't breached the limits or the I term will certainly reduce
     if (!_flags_heli.limit_yaw || ((i>0&&rate_error_rads<0)||(i<0&&rate_error_rads>0))) {
-        if (((AP_MotorsHeli&)_motors).rotor_runup_complete()) {
-            i = _pid_rate_yaw.get_i();
+        if (_flags_heli.yaw_leaky_i) {
+            i = ((AC_HELI_PID&)_pid_rate_yaw).get_leaky_i(_rate_integrator_leak_rate); 
+            _flags_heli.yaw_leaky_i = false;
         } else {
-            i = ((AC_HELI_PID&)_pid_rate_yaw).get_leaky_i(_rate_integrator_leak_rate);    // If motor is not running use leaky I-term to avoid excessive build-up
+            i = _pid_rate_yaw.get_i();
         }
     }
     
