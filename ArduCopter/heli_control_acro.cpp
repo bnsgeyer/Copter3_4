@@ -68,9 +68,7 @@ void Copter::heli_acro_run()
     switch (acro_state) {
 
     case Acro_MotorStopped:
-        attitude_control.set_pitch_target_to_current_attitude();
-        attitude_control.set_roll_target_to_current_attitude();
-        attitude_control.set_yaw_target_to_current_heading();
+        attitude_control.set_attitude_target_to_current_attitude();
         attitude_control.use_leaky_i(false);
         attitude_control.reset_rate_controller_I_terms();
         break;
