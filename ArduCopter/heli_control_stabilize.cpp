@@ -66,7 +66,6 @@ void Copter::heli_stabilize_run()
 
     case Stabilize_MotorStopped:
         attitude_control.set_yaw_target_to_current_heading();
-        attitude_control.use_leaky_i(false);
         attitude_control.reset_rate_controller_I_terms();
         break;
     case Stabilize_Landed:
@@ -79,7 +78,7 @@ void Copter::heli_stabilize_run()
         set_land_complete(false);
         break;
     case Stabilize_Flying:
-        attitude_control.use_leaky_i(false);
+
         break;
     }
 

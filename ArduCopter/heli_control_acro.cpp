@@ -69,7 +69,6 @@ void Copter::heli_acro_run()
 
     case Acro_MotorStopped:
         attitude_control.set_attitude_target_to_current_attitude();
-        attitude_control.use_leaky_i(false);
         attitude_control.reset_rate_controller_I_terms();
         break;
     case Acro_Landed:
@@ -86,7 +85,7 @@ void Copter::heli_acro_run()
         set_land_complete(false);
         break;
     case Acro_Flying:
-        attitude_control.use_leaky_i(false);
+
         break;
     }
 
