@@ -108,6 +108,9 @@ public:
     // reset rate controller I terms
     void reset_rate_controller_I_terms();
 
+    // Sets attitude target to vehicle attitude
+    void set_attitude_target_to_current_attitude() { _attitude_target_quat.from_rotation_matrix(_ahrs.get_rotation_body_to_ned()); }
+
     // Sets pitch target to vehicle pitch attitude
     void set_pitch_target_to_current_attitude() { shift_ef_pitch_target(degrees(_ahrs.pitch - _attitude_target_euler_angle.y)*100.0f); }
 
