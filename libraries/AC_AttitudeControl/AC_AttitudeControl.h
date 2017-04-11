@@ -26,8 +26,6 @@
 #define AC_ATTITUDE_RATE_RP_CONTROLLER_OUT_MAX          1.0f    // body-frame rate controller maximum output (for roll-pitch axis)
 #define AC_ATTITUDE_RATE_YAW_CONTROLLER_OUT_MAX         1.0f    // body-frame rate controller maximum output (for yaw axis)
 
-#define AC_ATTITUDE_RP_ERROR_ANGLE                      radians(10.0f) // Error above which roll and pitch corrections are limited
-#define AC_ATTITUDE_Y_ERROR_ANGLE                       radians(10.0f) // Error above which yaw corrections are limited
 #define AC_ATTITUDE_THRUST_ERROR_ANGLE                  radians(30.0f) // Thrust angle error above which yaw corrections are limited
 
 #define AC_ATTITUDE_400HZ_DT                            0.0025f // delta time in seconds for 400hz update rate
@@ -328,6 +326,12 @@ protected:
 
     // Rate at which target attitude will leak back to aircraft current attitude
     AP_Float            _angle_leak_rate;
+
+    // Maximum Pitch and Roll Attitude Error in degrees between target and current attitude
+    AP_Float            _pr_attitude_error_limit;
+
+    // Maximum Heading Error in degrees between target and current attitude
+    AP_Float            _y_attitude_error_limit;
 
     // Intersampling period in seconds
     float               _dt;

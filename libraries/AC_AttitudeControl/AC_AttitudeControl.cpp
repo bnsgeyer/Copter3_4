@@ -99,6 +99,18 @@ const AP_Param::GroupInfo AC_AttitudeControl::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("ANG_LEAK_RAT", 17, AC_AttitudeControl, _angle_leak_rate, 0.0f),
 
+    // @Param: PR_ATT_ERROR
+    // @DisplayName: PR_ATT_ERROR
+    // @Description: Maximum Pitch and Roll Attitude Error in degrees between target and current attitude
+    // @User: Advanced
+    AP_GROUPINFO("PR_ATT_ERROR", 18, AC_AttitudeControl, _pr_attitude_error_limit, 0.0f),
+
+    // @Param: Y_ATT_ERROR
+    // @DisplayName: Y_ATT_ERROR
+    // @Description: Maximum Heading Error in degrees between target and current attitude
+    // @User: Advanced
+    AP_GROUPINFO("Y_ATT_ERROR", 19, AC_AttitudeControl, _y_attitude_error_limit, 0.0f),
+
     AP_GROUPEND
 };
 
@@ -470,12 +482,12 @@ void AC_AttitudeControl::thrust_heading_rotation_angles(Quaternion& att_to_quat,
     att_diff_angle.y = rotation.y;
 
     // Limit the pitch and roll attitude error between target and current attitude 
-    if(fabsf(att_diff_angle.x) > AC_ATTITUDE_RP_ERROR_ANGLE || fabsf(att_diff_angle.y) > AC_ATTITUDE_RP_ERROR_ANGLE){
-        if(fabsf(att_diff_angle.x) > AC_ATTITUDE_RP_ERROR_ANGLE){
-            att_diff_angle.x = constrain_float(wrap_PI(att_diff_angle.x), -AC_ATTITUDE_RP_ERROR_ANGLE, AC_ATTITUDE_RP_ERROR_ANGLE);
+    if( _pr_attitude_error_limit > 0.0f && (fabsf(att_diff_angle.x) > radians(_pr_attitude_error_limit) || fabsf(att_diff_angle.y) > radians(_pr_attitude_error_limit))){
+        if(fabsf(att_diff_angle.x) > radians(_pr_attitude_error_limit)){
+            att_diff_angle.x = constrain_float(wrap_PI(att_diff_angle.x), -radians(_pr_attitude_error_limit), radians(_pr_attitude_error_limit));
         }
-        if(fabsf(att_diff_angle.y) > AC_ATTITUDE_RP_ERROR_ANGLE){
-            att_diff_angle.y = constrain_float(wrap_PI(att_diff_angle.y), -AC_ATTITUDE_RP_ERROR_ANGLE, AC_ATTITUDE_RP_ERROR_ANGLE);
+        if(fabsf(att_diff_angle.y) > radians(_pr_attitude_error_limit)){
+            att_diff_angle.y = constrain_float(wrap_PI(att_diff_angle.y), -radians(_pr_attitude_error_limit), radians(_pr_attitude_error_limit));
         }
         thrust_vec_correction_quat.from_axis_angle(Vector3f(att_diff_angle.x,att_diff_angle.y,rotation.z));
         att_to_quat = att_from_quat*thrust_vec_correction_quat*heading_quat;
@@ -485,8 +497,8 @@ void AC_AttitudeControl::thrust_heading_rotation_angles(Quaternion& att_to_quat,
     att_diff_angle.z = rotation.z;
 
     // Limit the heading error between target and current heading 
-    if(fabsf(att_diff_angle.z) > AC_ATTITUDE_Y_ERROR_ANGLE){
-        att_diff_angle.z = constrain_float(wrap_PI(att_diff_angle.z), -AC_ATTITUDE_Y_ERROR_ANGLE, AC_ATTITUDE_Y_ERROR_ANGLE);
+    if( _y_attitude_error_limit > 0.0f && fabsf(att_diff_angle.z) > radians(_y_attitude_error_limit)){
+        att_diff_angle.z = constrain_float(wrap_PI(att_diff_angle.z), -radians(_y_attitude_error_limit), radians(_y_attitude_error_limit));
         heading_quat.from_axis_angle(Vector3f(0.0f,0.0f,att_diff_angle.z));
         att_to_quat = att_from_quat*thrust_vec_correction_quat*heading_quat;
     }
