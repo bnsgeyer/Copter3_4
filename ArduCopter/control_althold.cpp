@@ -81,12 +81,12 @@ void Copter::althold_run()
 
         motors.set_desired_spool_state(AP_Motors::DESIRED_SHUT_DOWN);
         attitude_control.input_euler_angle_roll_pitch_euler_rate_yaw(target_roll, target_pitch, target_yaw_rate, get_smoothing_gain());
+        attitude_control.reset_rate_controller_I_terms();
+        attitude_control.set_yaw_target_to_current_heading();
 #if FRAME_CONFIG == HELI_FRAME    
         // force descent rate and call position controller
         pos_control.set_alt_target_from_climb_rate(-abs(g.land_speed), G_Dt, false);
 #else
-        attitude_control.reset_rate_controller_I_terms();
-        attitude_control.set_yaw_target_to_current_heading();
         pos_control.relax_alt_hold_controllers(0.0f);   // forces throttle output to go to zero
 #endif
         pos_control.update_z_controller();
@@ -125,8 +125,13 @@ void Copter::althold_run()
             motors.set_desired_spool_state(AP_Motors::DESIRED_THROTTLE_UNLIMITED);
         }
 
+#if FRAME_CONFIG == HELI_FRAME    
+        attitude_control.leak_yaw_target_to_current_heading();
+        attitude_control.use_leaky_i(true);
+#else
         attitude_control.reset_rate_controller_I_terms();
         attitude_control.set_yaw_target_to_current_heading();
+#endif
         attitude_control.input_euler_angle_roll_pitch_euler_rate_yaw(target_roll, target_pitch, target_yaw_rate, get_smoothing_gain());
         pos_control.relax_alt_hold_controllers(0.0f);   // forces throttle output to go to zero
         pos_control.update_z_controller();
