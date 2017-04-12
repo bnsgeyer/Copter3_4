@@ -1,5 +1,18 @@
 APM:Copter Release Notes:
 ------------------------------------------------------------------
+Copter 3.4.6 Geyer V1.0 11-Apr-2017
+Changes from 3.4.4 Geyer V1.2
+1) incorporated changes for Copter 3.4.5
+2) incorporated changes for Copter 3.4.6
+------------------------------------------------------------------
+Copter 3.4.6 15-Mar-2017
+Changes from 3.4.5
+1) ensure WPNAV_LOIT_SPEED is non-zero to avoid divide-by-zero
+------------------------------------------------------------------
+Copter 3.4.5 11-Feb-2017
+Changes from 3.4.4
+1) Bug fix to Guided mode that could lead to crash after take-off completes if MOT_THST_HOVER too high 
+------------------------------------------------------------------
 Copter 3.4.4 Geyer V1.2 11-Apr-2017
 Changes from Copter 3.4.4
 1) Limited maximum pitch and roll attitude error between target and current
