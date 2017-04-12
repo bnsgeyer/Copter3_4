@@ -1,9 +1,19 @@
 APM:Copter Release Notes:
-__________________________________________________________________
+------------------------------------------------------------------
+Copter 3.4.4 Geyer V1.2 11-Apr-2017
+Changes from Copter 3.4.4
+1) Limited maximum pitch and roll attitude error between target and current
+2) Limited maximum heading error between target and current 
+3) Added parameters that enable user to adjust maximum error or turn off feature
+4) Added state machines to trad heli stabilize and acro control run routines
+5) Enabled setting attitude target quaternion to aircraft current attitude during disarmed state for Trad Heli Acro Mode
+6) Enabled leaking of target pitch and roll attitude and heading to current values in Trad Heli Acro mode during takeoff and landed states
+7) Changed leaky i term to be enabled during landed and takeoff states in both stabilize, acro and Althold modes for Trad Heli
+------------------------------------------------------------------
 Copter 3.4.4 Geyer V1.1 21-Jan-2017
 Changes from Copter 3.4.4
 1) added parameter to allow user to adjust I term leak rate
-__________________________________________________________________
+------------------------------------------------------------------
 Copter 3.4.4 Geyer V1.0 21-Jan-2017
 Changes from Copter 3.4.4
 1) added attitude leak
